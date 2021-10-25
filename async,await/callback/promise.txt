@@ -1,0 +1,172 @@
+프라미스
+1. 제작 코드는 원격에서 스크립트를 불러오는것 같은 시간이 걸리는 일을 말한다. 해당 비유에서는 가수가 제작 코드에 해당...
+
+2. 소비코드는 제작코드의 결과를 기다렸다가 이를 소비한다. 소비 주체는 여럿이 될 수 있다. 비유에서 소비 코드는 팬이다...
+
+3. 프라미스는 제작코드와 소비 코드를 연결해 주는 특별한 객체. 비유에서 프라미스는 구독 리스트 이며 프라미스는 시간이 얼마나 걸리든 상관없이 약속한 결과를 만들어내는 제작코드가 준비 되었을때 모든 소비 코드가 결과를 사용 할 수 있도록 해준다...
+
+위의 비유는 이해를 위한것이며 완벽하게 맞지는 않다...
+
+let promise = new Promise(function(res,rej){
+    executor(제작 코드,'가수')
+});
+
+new promise에 전달되는 함수 executor는 실행자 라고 부르며 이 실행자는 new promise가 만들어질때 자동으로 실행된다. 결과를 최종적으로 만들어내는 제작 코드를 포함하며 위 비유중 가수가 executor이다...
+
+executor의 인수 resolve와 reject는 자바 스크립트에서 자체 제공하는 콜백...
+res는 성공했을때 rej는 에러 나올때
+
+new promise 생성자가 반환하는 promise 객체는 다음과 같은 내부 프로퍼티를 갖는다
+
+state 처음엔 pending이었다가 res호출시 fulfilled가 되며 rej호출시 rejected로 변함
+
+result 처음엔 undefined였다가 res가 호출된다면 value로 rejct 호출시 error로 변한다...
+
+let promise = new Promise(function (res,rej){
+
+    setTimeout(()=>res("done"),1000)
+})
+
+1. excutor는 new promise에 의해 자동으로 그리고 즉각적으로 호출된다
+
+2. executor 는 인자로 res rej함수 받는다. 따로 만들 필요는 없지만 2개중 하나는 반드시 호출 해야한다...
+
+let promise = new Promise(function(resolve, reject) {
+  // 1초 뒤에 에러와 함께 실행이 종료되었다는 신호를 보냅니다.
+  setTimeout(() => reject(new Error("에러 발생!")), 1000);
+});
+
+성공 또는 실패만한다...
+let promise = new Promise(function(res,rej){
+    resolve("done");
+
+    reject(new Error("...")); //무시됨
+    setTimeout(()=> resolve("...")) //무시됨
+})
+
+rejct 즉시 호출할땐 뒤에 시간을 빼주면됨...
+let promise = new Promise(function(resolve, reject) {
+  // 일을 끝마치는 데 시간이 들지 않음
+  resolve(123); // 결과(123)를 즉시 resolve에 전달함
+});
+
+state 와 result는 내부에있다
+-> 프라미스 객체의 state result 프로퍼티는 내부 프로퍼티 이므로 개발자가 직접 접근 할 수 없다...
+
+.then/ .catch/ .finally 메서드를 사용하면 접근 가능하다...
+
+then, catch, .finally
+소비 함수 즉 고객은 then catch finally 메서드를 사용해 등록된다...
+
+.then은 프라미스에서 가장 중요하고 기본이 되는 메서드이다...
+
+promise.then(
+    function(result) //결과를 다룬다
+    function(error) //에어를 다룬다
+);
+
+.then의 첫 번째 인수는 프라미스가 이행되었을 때 실행되는 함수이고, 여기서 실행 결과를 받습니다.
+
+.then의 두 번째 인수는 프라미스가 거부되었을 때 실행되는 함수이고, 여기서 에러를 받습니다.
+
+let promise = new Promise(function(res,rej)=>{
+    setTimeout (()=>res("done").1000)
+});
+
+//res 함수는 .then의 첫번째 함수를 실행한다...
+promise.then(
+    result=>alert(result),
+    error=>alert(error)
+)
+
+promise가 거부된다면 error를 뱉는다...
+
+작업이 성공적으로 처리도니 경우만 다루고 싶다면 .then에 인수를 하나만 전달해준다...
+
+let promise = new Promise(res=>{
+    setTimeout(()=>res("done!"),1000);
+});
+promise.then(alert);
+
+.catch
+에러가 발생한 경우만 다루고 싶다면.then(null, errorHandlingFunction) 같이 null을 첫번째 인수로 전달하면 된다.  . .catch(errorHandlingFunction)를 사용해도무방하지만 catch는 then에 null을 전달하는것과 동일하게 작동한다...
+
+let promise = new Promise((res,rej)=>{
+    setTimeout(()=>rej(new Error("에러 발생")),1000);
+
+    //.cath(f)는 promise.then(null, f)과 동일하게 작동한다...
+
+    promise.catch(alert) // 1초 뒤 에러 발생 출력
+})
+.catch(f)는 문법이 간결하다는 점만 빼고 .then(null,f)과 완벽하게 같습니다
+
+finally
+try catch와 같이 예외처리 하는 구문이있다면 프라미스에도 finally가 있다...
+프리미스가 처리되면 f가 항상 실행된다는 점에서 .finally(f) 로출은 .then(f,f)와 유사하다
+
+쓸모가 없어진 로딩 인디케이터를 멈추는 경우같이 결과가 어떻든 마무리가 필요하면 finally가 유용하다
+
+new Promise((res,rej)=>{
+    //시간이 걸리는 어떤 일을 수행하고, 그 후 res,rej를 호출
+
+    //성공 실패 여부와 상관없이 프라미스가 처리되면 실행됨
+
+    .finally(()=>로딩인디케이터 중지)
+    .then(result=>result와 err 보여준다 => err 보여줌)
+})
+
+catch와 다르게 finally는 .then(f,f)와 완전히 같진 않다. 차이점은 이와 같다
+
+1.finally 핸들러엔 인수가 없다. finally 에선 프라미스가 이행되었는지, 거부되었는지 알 수없다
+finally 에선 절차를 마무리하는 보편적 동작을 수행하기 때문에 성공 실패 여부를 몰라도된다...
+
+2.finally 핸들러는 자동으로 다음 핸들러에 결과와 에러르 전달한다
+
+reuslt가 finally를 거쳐 then 까지 절달 되는 것을 확인해보아야한다.
+
+new Promise((res,rej)=>{
+    setTimeout(()=>res("결과"),2000)
+})
+.finally(()=>alert("프라미스가 준비되었습니다."))
+.then(result=> alert(result)); <--then에서 result를 다룰수있다...
+
+에러발생시
+new Promise((resolve, reject) => {
+  throw new Error("에러 발생!");
+})
+  .finally(() => alert("프라미스가 준비되었습니다."))
+  .catch(err => alert(err)); // <-- .catch에서 에러 객체를 다룰 수 있음
+
+  프라미스를 적용하여 loadScript 수정하기
+
+  function loadScript(src){
+      return new Promise(function(res,rej){
+          let script = document.createElement('script');
+          script.src =src;
+
+          script.onload = () => resolve(script);
+          script.onerror = () => reject(new Error(`${src}를 불러오는 도중 에러가 발생함`))
+        document.head.append(script);
+      });
+  }
+
+사용법
+
+let promise = loadScript("https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.11/lodash.js");
+
+promise.then(
+    script => alert(`${script.src}을 불러왔습니다!`)
+    error => alert(`Error : ${error.message}`)
+);
+
+promise.then(script => alert(`또 다른 핸들러...`))
+
+프라미스를 이용하면 흐름이 자연스럽다
+loadScript(script)로 스크립트를 읽고, 결과에 따라 그 다음에 무엇을 할지에 대한 코드를 작성하면된다. 
+또한 프라미스는 원하는 만큼 .then을 호출 할 수 있다
+.then을 호출 하는 것은 새로운 팬을 구독 리스트에 추가하는것과 같다
+
+콜백
+loadScript(script, callback)를 호출할 때, 함께 호출할 callback 함수가 준비되어 있어야 합니다. loadScript를 호출하기 이전에 호출 결과로 무엇을 할지 미리 알고 있어야 합니다.
+
+콜백은 하나만 가능
