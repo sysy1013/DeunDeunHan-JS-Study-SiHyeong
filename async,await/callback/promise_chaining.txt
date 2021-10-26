@@ -1,0 +1,81 @@
+프로미스 체이닝은 result가 .then 핸들러의 체인을 통해 전달된다는 점에서 착안한 아이디어
+
+new Promise(function(resolve, reject) {
+
+  setTimeout(() => resolve(1), 1000); // (*)
+
+}).then(function(result) { // (**)
+
+  alert(result); // 1
+  return result * 2;
+
+}).then(function(result) { // (***)
+
+  alert(result); // 2
+  return result * 2;
+
+}).then(function(result) {
+
+  alert(result); // 4
+  return result * 2;
+
+});
+
+위의 코드는 아래 순서로 진행
+1. 1초 후 최초 프라미스 이행되었는지
+2. 첫번째 .then 핸들러가 호출
+3. 2에서 반환한 값은 다음 핸들러에 전달
+4. 위 과정 반복
+결과 1,2,4
+
+프라미스 하나에 .then을 여러 개 추가한 후 이를 체이닝이라고 착각하는 경우가 있지만 이는 체이닝이 아니다
+
+프라미스는 주로 체이닝을 해서 쓴다...
+
+프라미스 반환하기
+.then에 사용된 핸들러가 프라미스를 생성하거나 반환하는 경우도 있다...
+이 경우 이어지는 핸들러는 프라미스가 처리 될 때까지 기다리다가 처리가 완료되면 그 결과를 받는다.
+
+new Promise(function(res,rej){
+    setTimeout(()=> res(1),1000);
+}).then(function(res){
+    alert(result);
+    
+    result new Promise((res, rej)=>{
+        setTimeout(()=> res(res*2),1000);
+    });
+}).then(function(result){
+    alert(result);
+
+    result new Promise((res, rej)=>{
+        setTimeout(()=> res(res*2),1000);
+    });
+}).then(function(result){
+    alert(result);
+});
+
+위 코드와 같이 핸들러 안에서 프라미스를 반환하는 것도 비동기 작업 체이닝을 가능하게 해준다...
+
+
+thenable
+핸들러는 프라미스가 아닌 thenable이라 불리는 객체를 반환한다..
+.then 이라는 메서드를 가진 객체는 모두 thenable 객체라고 부르는데, 이 객체는 프라미스와 같은 방식으로 처리한다..
+
+thenable 객체에 대한 아이디어는 서드파티 라이브러리가 프라미스와 호환 가능한 자체 객체를 구현 할 수 있다는 점에서 나왔다..
+이 객체들엔 자체 확장 메서드가 구현되어 있겠지만, .then이 있기 때문에 네이티브 프라미스와 호환 가능
+
+class Thenable{
+    constructor(num){
+        this.num = num;
+    }
+    then(res,rej){
+        alert(resolve);
+        setTimeout(()=> resolve(this.num *2),1000);
+    }
+}
+
+new Promise(resolve => resolve(1))
+.then(result =>{
+    return new Thenable(result);
+})
+.then(alert);
