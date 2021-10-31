@@ -1,0 +1,282 @@
+모듈이란? 개발하는 app의 크기가 커지면 언젠가 파일을 여러 개로 분리 해야 하는 시점이 오는데, 이때 분리된 파일 각각을 모듈 이라고 부른다.
+
+모듈은 단지 파일 하나에 불과하다. 스크립트 하나는 모듈 하나이다.
+
+모듈에 특수한 지시자 export와 import를 적용하면 다른 모듈을 불러와 불러온 모듈에 있는 함수를 호출하는것과 같은 기능 공유가 가능하다.
+
+✅ export 지시자를 변수나 함수 앞에 붙이면 외부 모듈에서 해당 변수나 함수에 접근 할 수 있다.(모듈 내보내기)
+
+✅ import 지시자를 사용하면 외부 모듈의 기능을 가져올 수 있다.(모듈 가져오기)
+
+=============예제====================
+//sayHi.js
+export function sayHi(user){
+    alert(`Hello ${user}!`);
+}
+
+//main.js
+import {sayHi} from './sayHi.js';
+
+alert(sayHi);
+sayHi('Jone');
+
+위 예시에서 import 지시자는 상대 경로 기준으로 모듈을 가져오고 sayHi.js 에서 내보낸 함수 sayHi를 상응하는 변수에 할당한다./sayHi.js
+
+
+모듈은 자신만의 스코프가 있고, 모듈 내부에서 변수나 함수는 다른 스크립트에서 접근 할 수 없다. 
+
+외부에 공개하려는 모듈은 export 해야하고, 내보내진 모듈을 가져와 사용하려면 import 해야한다. 
+
+모듈은 단 한번만 평가된다. 
+동일한 모듈이 여러 곳에서 사용되더라도 모듈은 최초 호출 시 단 한번만 실행된다. 
+
+// 📁 1.js
+import {admin} from './admin.js';
+admin.name = "Pete";
+
+// 📁 2.js
+import {admin} from './admin.js';
+alert(admin.name); // Pete
+
+// 1.js와 2.js 모두 같은 객체를 가져오므로
+// 1.js에서 객체에 가한 조작을 2.js에서도 확인할 수 있습니다.
+
+import.meta 객체는 현재 모듈에 대한 정보를 제공한다.
+
+호스트 환경에 따라 제공하는 정보의 내용은 다른데, 브라우저 환경에선 스크립트의 URL 정보를 얻을 수 있다. 
+
+모듈 최상위 레벨의 this는 undefined이다. 
+모듈이 아닌 일반 스크립트의 this는 전역 객체인것과 대조된다.
+
+인라인 스크립트의 비동기 처리 
+모듈이 아닌 일반 스크립트에서 async 속성은 외부 스크립트를 불러올때만 유효하다 async 속성이 붙은 스크립트는 로딩이 끝나면 다른 스크립트나 html을 기다리지않고 바로 실행
+
+반면 모듈 스크립트에선 async 속성을 인라인 스크립트에도 적용 할 수 있다.
+
+인라인 스크립트에 async 속성이 붙어있으면 다른 스크립트나 html 처리되길 기다리지 않고 바로 실행한다.
+
+경로가 없는 모듈은 금지
+브라우저 환경에서 import는 반드시 상대 혹은 절대 URL 앞에 와야합니다. '경로가 없는' 모듈은 허용되지 않습니다.
+
+import {sayHi} from 'sayHi'; // Error!
+// './sayHi.js'와 같이 경로 정보를 지정해 주어야 합니다.
+
+전체 요약
+1. 모듈은 하나의 파일이다. 
+    1) 지연실행된다. 2) 인라인 모듈 스크립트도 비동기 처리 할 수 있다. 3) 중복된 외부 스크립트는 무시한다./admin.js
+2. 모듈은 자신만의 스코프를 갖는다. 모듈 간 기능 공유는 import. export로 할 수 있다. 
+3. 모듈 내 코드는 단 한번만 실행된다. 모듈을 내보내면 이 모듈을 가져오기 위한 모듈 모두가 내보내진 모듈을 공유한다. 
+
+모듈 내 함수나 객체등은 export 키워드로 내보낼 수있다. 이렇게 내보내진 기능은 import 키워드를 사용해서 가져온다.  
+
+
+=============================================
+
+선언부 앞에 export 붙이기
+변수나 함수, 클래스를 선언할 때 맨 앞에 export를 붙이면 내보내기가 가능
+
+export let months = ['jan', 'Feb', 'Mar','Apr','Aug','Sep','Oct','Nov','Dec']; 
+//배열 내보내기
+
+export const = MODULES_BECAME_STANDARD_YEAR = 2015;
+//상수 내보내기
+
+export class User { 
+    constructor(name){
+        this.name = name;
+    }
+}
+
+✅ 클래스나 함수를 내보낼 땐 세미콜론 X
+클래스나 함수 선언시 선언부 앞에 export를 붙인다고해서 함수 표현식으로 바뀌지 않는다. 
+나 클래스 선언 끝에 세미콜론을 붙이지 말라고 권유합니다.
+
+같은 이유로 export class나 export function 끝에 세미콜론을 붙이지 않는다 
+
+선언부와 떨어진 곳에 export 붙이기
+▶선언부와 export가 떨어져있어도 내보내기 가능
+
+ex
+function sayHi(user){
+    alert(`Hello, ${user}!`);
+}
+function sayBye(user){
+    alert(`Bye, ${user}!`);
+}
+
+export {sayHi,sayBye}; // 두 함수를 내보낸다.
+
+import ▶ 무언갈 가져오고 싶다면 import 안에 적어주면 된다. 
+
+//main.js
+import {sayHi, sayBye} from './say.js';
+
+sayHi('John');
+sayBye('John');
+
+가져올것이 많으면
+import * as say from './say.js';
+
+say.sayHi('John');
+say.sayBye('John');
+
+이렇게 모든 걸 가져오는 방식 쓰면 길이가 짧아지고 좋음 그렇지만 가져올때 곡 구체적으로 명시해야함./admin.js
+
+
+하나만 가져올땐 {} 치고 가져오는것이좋음
+
+ex
+import {sayHi} from './say.js';
+
+import 'as'
+as를 사용하면 이름을 바꿔서 모듈을 가져올수있다. 
+
+//main.js
+import {sayHi as hi, sayBye as bye} from './say.js';
+
+hi('john');
+bye('john');
+
+export에도 as 가능
+
+//say.js
+export {sayhi as hi, sayBye as bye};
+
+다른 모듈에서 가져올 땐 이름은 hi bye가 된다.
+
+import * as say from './say.js';
+
+say.hi('John'); // Hello, John!
+say.bye('John'); // Bye, John!
+
+모듈은 크게 두 종류로 나뉜다./admin.js
+1. 복수의 함수가 있는 라이브러리 형태의 모듈
+2. 개체 하나만 선언되어있는 모듈
+
+대개는 두번째 방식으로 모듈을 만드는 걸 선호하기 때문에 함수, 클래스, 변수 등의 개체는 전용 모듈 안에 구현된다.
+모듈을 만들다보면 개수가 많아지기떄문에 이름을 잘 지어줘야 코드 탐색시 문제가 되지않는다. 
+
+export default를 사용하면 해당 모듈엔 개체가 하나만 있다는 사실을 나타낼 수 있다. 
+
+export default class User {
+    constructor(name){
+        this.name = name;
+    }
+}
+
+이렇게 default를 붙여서 내보내면 중괄호 없이 모듈을 가져 올 수 있다./admin.js
+
+import User from './user/js'
+
+new User('John');
+
+named export 한 모듈을 가져오려면 중괄호가 필요하고 default export 한 모듈을 가져오려면 중괄호가 필요하지 않다
+
+named export
+export class User {...}
+import {User} from ...
+
+default export
+export default class User {...}
+import User from ...
+
+export default는 파일당 하나만 있으므로 이 개체를 가져오기 하려는 모듈에선 중괄호 잘 가져 올 수 있으므로 이름이 없어도 괜찮음
+
+'default' name
+default 키워드는 기본 내보내기를 참조하는 용도로 종종 사용된다...
+
+함수를 내보낼땐 아래와 같이 함수 선언부와 떨어진 곳에서 default 키워드를 사용하면, 해당 함수를 기본 내보내기 할 수 있다...
+
+function sayHi(User){
+    alert (`Hello, ${user}!`);
+}
+
+export {sayHi as default};
+
+//함수 선언부 앞에 'export defalt'를 붙여준 것과 동일
+
+흔치 않게 defalt export 하나와 다수의 named export가 있다고 할때
+
+// 📁 user.js
+export default class User {
+  constructor(name) {
+    this.name = name;
+  }
+}
+
+export function sayHi(user) {
+  alert(`Hello, ${user}!`);
+}
+
+// 📁 main.js
+import {default as User, sayHi} from './user.js';
+
+new User('John');
+
+위와 같은 방식으로 동시에 가져올 수 있다...
+*를 사용해 모든것을 객체 형태로 가져 올 수도 있지만 위와 같은 경우네는 default 프로퍼티는 정확히 default export를 가르킨다...
+
+import * as user from './user.js';
+
+let User = user.default;
+new User('John');
+
+named export 와는 다르게 default export는 가져오기 할 때 개발자가 원하는 대로 이름을 지정해 줄 수 있다...
+
+이렇게 자유롭게 지어버리면 이름이 달라 혼란의 여지가 생길수있다,
+
+이런 문제를 예방하고 코드의 일관성을 유지하기 위해 defalt export 한 것을 가져올 땐 동일한 이름을 사용하도록 팀원끼리 내부 규칙을 정해야한다...
+
+
+모듈 다시 내보내기
+export ... from ... 문법을 사용하면 가져온 개체를 즉시 다시 내보내기 할 수 있다...
+
+export {sayHi} from './say.js' // sayHi를 다시 내보내기 함
+
+export {default as User} from './user.js'// default export를 다시 내보내기함
+
+왜 다시 내보내기가 필요할까?
+내보낼 기능을 패키지 전반에 분산하여 구현한 후, auth/index.js에서 이 기능들을 가져오고 이를 다시 내보내면 원하는 바를 어느 정도 달성할 수 있습니다.
+
+//auth/index.js
+
+import {login, logout} from './helpers.js';
+export {login, logout};
+
+//login과 logout을 가지고 온 후 바로 내보낸다.
+
+import User from './user.js';
+export {User};
+
+//User를 가져 온 후 바로 내보낸다.
+
+전체적인요약
+export 타입
+1. 클래스, 함수 등의 선언부 앞에 export 붙여서 내보내기
+export [default] class/function/variable ...
+
+2. 이름없는 개체 내보내기
+export {x [as y], ...}.
+
+3. 다시 내보내기
+
+가져오기
+1. named export 가져오기
+
+2. default export 가져오기
+
+3. 한번에 가져오기
+import * as obj from "mod"
+
+4. 모듈을 가져오지만 할당 x
+import "mod"
+
+import/ export 문은 스크립트 맨 위나 맨 아래에 와도 둘에 차이 없음
+
+대개 편의상 스크립트 맨 위에 import문 위치 시킨다
+
+import/ export는 블록 안에선 동작 X
+
+if (something) {
+  import {sayHi} from "./say.js"; // 에러: import 문은 최상위 레벨에 위치해야 합니다.
+}
