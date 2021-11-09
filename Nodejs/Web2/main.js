@@ -14,7 +14,7 @@ function templateHTML(title, list, body){
   <body>
     <h1><a href="/">WEB</a></h1>
         ${list}
-        ${body}
+        ${body} 
         <p>hi</p>
   </body>
   </html>
